@@ -2,203 +2,166 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Registro Cuenta Cobrar - Jornada</title>
+<title>Registro Cuenta Cobrar - V2</title>
 <style>
 body{margin:0;background:#0f0f0f;color:#fff;font-family:Arial}
 .top{background:#181A2E;padding:14px;text-align:center;font-weight:900;position:sticky;top:0;z-index:10}
 .top span{color:#FFA23A}
 .card{max-width:700px;margin:12px auto;background:#1E1E1E;padding:16px;border-radius:12px}
 label{font-size:12px;color:#aaa}
-input,select{width:100%;padding:12px;box-sizing:border-box;border-radius:8px;border:none;background:#2A2A2A;color:#fff;margin-top:4px;font-size:16px}
+input{width:100%;padding:12px;box-sizing:border-box;border-radius:8px;border:none;background:#2A2A2A;color:#fff;margin-top:4px;font-size:16px}
 button{width:100%;padding:14px;border:none;border-radius:10px;font-weight:900;margin-top:8px;cursor:pointer;font-size:15px}
-.btn-mic{background:#B4332A;color:#fff;padding:22px;font-size:20px;user-select:none;-webkit-user-select:none}
-.btn-mic.active{background:#00C950;transform:scale(1.02)}
-.btn-mic:disabled{opacity:.5}
+.btn-mic{background:#B4332A;color:#fff;padding:22px;font-size:20px}
+.btn-mic.active{background:#00C950}
+.nota{background:#2A2A2A;padding:12px;border-radius:8px;margin-top:8px;border-left:4px solid #555;display:flex;justify-content:space-between;cursor:pointer}
+.nota.selected{border-left-color:#FFA23A;background:#332800;border:2px solid #FFA23A}
+.btn-row{display:flex;gap:8px;display:none}
+.btn-green{background:#0A7A42;color:#fff}
+.btn-yellow{background:#FFA23A;color:#181A2E}
+.btn-red{background:#B4332A;color:#fff}
+.btn-dark{background:#333;color:#fff}
 .step{display:flex;gap:8px;margin-top:10px}
 .step div{flex:1;padding:10px;border-radius:8px;background:#2A2A2A;text-align:center;font-size:12px;border:2px solid transparent}
-.step div.on{border-color:#FFA23A;background:#332800;color:#FFA23A;font-weight:900}
-.step div.done{border-color:#00C950;color:#00C950}
-.nota{background:#2A2A2A;padding:10px;border-radius:8px;margin-top:8px;border-left:4px solid #FFA23A;display:flex;justify-content:space-between}
-.resumen{background:#FFA23A;color:#181A2E;padding:12px;border-radius:8px;margin-top:12px;font-weight:900;white-space:pre-wrap}
-.btn-green{background:#0A7A42;color:#fff}
-.btn-dark{background:#333;color:#fff}
-#log{font-size:11px;color:#FFA23A;min-height:18px;margin-top:6px}
+.step div.on{border-color:#FFA23A;color:#FFA23A;font-weight:900}
+#log{font-size:11px;color:#FFA23A;margin-top:6px}
+/* Modal editar */
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:20}
+#modalBox{background:#1E1E1E;padding:18px;border-radius:12px;width:90%;max-width:400px}
 </style>
 </head>
 <body>
-<div class="top">REGISTRO CUENTA COBRAR EMPLEADOS - NIT <span>34.994.561</span></div>
+<div class="top">REGISTRO CUENTAS COBRAR V2 - NIT <span>34.994.561</span></div>
 
 <div class="card">
 <label>1. FECHA DE LA JORNADA</label>
 <input type="date" id="fechaJornada">
-<small style="color:#888">Se llena al abrir, puedes cambiarla</small>
-
-<div style="margin-top:14px">
-<label>2. REGISTRO POR VOZ</label>
-<div class="step">
-<div id="s1" class="on">1. NOMBRE</div>
-<div id="s2">2. CONCEPTO</div>
-<div id="s3">3. VALOR</div>
+<div class="step"><div id="s1" class="on">1. NOMBRE</div><div id="s2">2. CONCEPTO</div><div id="s3">3. VALOR</div></div>
+<button id="btnMic" class="btn-mic">🎤 MANTENER OPRIMIDO<br><small>NOMBRE (2s) CONCEPTO (2s) VALOR</small></button>
+<div id="log">Toca una nota de abajo para seleccionarla</div>
+<div style="display:flex;gap:6px;margin-top:8px">
+<input id="inpNombre" placeholder="Nombre"><input id="inpConcepto" placeholder="Concepto"><input id="inpValor" type="number" placeholder="Valor">
 </div>
-
-<button id="btnMic" class="btn-mic">🎤 MANTENER OPRIMIDO - HABLAR<br><small style="font-size:11px">Di: NOMBRE (pausa 2s) CONCEPTO (pausa 2s) VALOR</small></button>
-<div id="log">Listo para grabar</div>
-
-<div style="display:flex;gap:6px">
-<input id="inpNombre" placeholder="Nombre detectado">
-<input id="inpConcepto" placeholder="Concepto detectado">
-<input id="inpValor" placeholder="Valor" type="number">
-</div>
-<button id="btnOtro" class="btn-dark">➕ REGISTRAR OTRO AUDIO EN LA JORNADA</button>
-</div>
+<button id="btnOtro" class="btn-dark">➕ REGISTRAR OTRO AUDIO</button>
 </div>
 
 <div class="card">
-<b>📋 Notas del <span id="fechaTxt">-</span> (<span id="count">0</span>)</b>
+<b>📋 Notas del <span id="fechaTxt">-</span> (<span id="count">0</span>) - Toca para seleccionar</b>
 <div id="lista"></div>
-<div id="resumenBox"></div>
-<button id="btnFinalizar" class="btn-green">📄 FINALIZAR JORNADA - GENERAR TXT</button>
+
+<div id="actions" class="btn-row" style="margin-top:12px">
+<button id="btnEditarSel" class="btn-yellow">✏️ EDITAR NOTA SELECCIONADA</button>
+<button id="btnBorrarSel" class="btn-red">🗑️ BORRAR NOTA SELECCIONADA</button>
 </div>
 
+<div id="resumenBox"></div>
+<button id="btnFinalizar" class="btn-green">📄 FINALIZAR JORNADA - TXT</button>
+</div>
+
+<div id="modal"><div id="modalBox">
+<b>✏️ EDITAR NOTA</b>
+<label>Nombre</label><input id="editNombre">
+<label>Concepto</label><input id="editConcepto">
+<label>Valor $</label><input id="editValor" type="number">
+<button id="btnSaveEdit" class="btn-green">GUARDAR CAMBIOS</button>
+<button id="btnCancelEdit" class="btn-dark">CANCELAR</button>
+</div></div>
+
 <script>
-let notas = JSON.parse(localStorage.getItem('notas_cxc')||'[]');
+let notas=JSON.parse(localStorage.getItem('notas_cxc')||'[]');
+let selectedIdx=null;
 let fechaJ=document.getElementById('fechaJornada');
 fechaJ.valueAsDate=new Date();
 document.getElementById('fechaTxt').textContent=fechaJ.value;
-fechaJ.onchange=()=>document.getElementById('fechaTxt').textContent=fechaJ.value;
+fechaJ.onchange=()=>{ document.getElementById('fechaTxt').textContent=fechaJ.value; render(); };
 
-// Estado de grabacion por pausas
-let step=0; //0 nombre,1 concepto,2 valor
-let buffers=["","",""];
-let silenceTimer=null;
-let rec=null, listening=false;
-let finalTranscript="";
-
-function setStep(n){
- step=n;
- document.querySelectorAll('.step div').forEach((d,i)=>{
-  d.className=i<n?'done':i==n?'on':'';
- });
- document.getElementById('log').textContent=`Paso ${n+1}: di ${['NOMBRE','CONCEPTO','VALOR'][n]}...`;
-}
-function resetBuffers(){ buffers=["","",""]; finalTranscript=""; setStep(0); document.getElementById('inpNombre').value=''; document.getElementById('inpConcepto').value=''; document.getElementById('inpValor').value=''; }
-
-function startRec(){
- if(listening) return;
- if(!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)){ alert('Usa Chrome Android'); return; }
- const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
- rec=new SR();
- rec.lang='es-CO'; rec.continuous=true; rec.interimResults=true;
- resetBuffers();
- listening=true;
- document.getElementById('btnMic').classList.add('active');
- document.getElementById('btnMic').innerHTML='🔴 GRABANDO - HABLA AHORA...<br><small>pausa 2s para cambiar de campo</small>';
- setStep(0);
- rec.onresult=(e)=>{
-  let interim="";
-  for(let i=e.resultIndex;i<e.results.length;i++){
-    if(e.results[i].isFinal) finalTranscript+=" "+e.results[i][0].transcript;
-    else interim=e.results[i][0].transcript;
-  }
-  // Logica de pausa de 2 segundos para cambiar campo
-  clearTimeout(silenceTimer);
-  let currentText=(finalTranscript+" "+interim).trim();
-  // Asignar a buffer actual
-  if(step<=2) buffers[step]=currentText.split(' ').pop() || currentText; // simple
-  document.getElementById('inpNombre').value=buffers[0];
-  document.getElementById('inpConcepto').value=buffers[1];
-  document.getElementById('inpValor').value=buffers[2].replace(/[^0-9]/g,'');
-  if(step==0) document.getElementById('inpNombre').value=currentText;
-  if(step==1) document.getElementById('inpConcepto').value=currentText.replace(buffers[0],'').trim();
-  if(step==2) document.getElementById('inpValor').value=currentText.replace(buffers[0],'').replace(buffers[1],'').replace(/[^0-9]/g,'').trim();
-
-  silenceTimer=setTimeout(()=>{
-    if(step<2 && currentText.trim().length>1){
-      // Guardar lo dicho y pasar al siguiente
-      if(step==0) buffers[0]=document.getElementById('inpNombre').value=currentText;
-      if(step==1) buffers[1]=document.getElementById('inpConcepto').value=currentText.replace(buffers[0],'').trim();
-      finalTranscript=""; // reset para proximo campo
-      setStep(step+1);
-    }
-  },2000);
- };
- rec.onend=()=>{ if(listening){ try{rec.start()}catch{} } };
- try{ rec.start(); }catch{}
-}
-function stopRec(){
- listening=false;
- if(rec){ try{rec.stop()}catch{} rec=null; }
- clearTimeout(silenceTimer);
- document.getElementById('btnMic').classList.remove('active');
- document.getElementById('btnMic').innerHTML='🎤 MANTENER OPRIMIDO - HABLAR<br><small>Di: NOMBRE (pausa 2s) CONCEPTO (pausa 2s) VALOR</small>';
- // Extraer valor final
- let nombre=document.getElementById('inpNombre').value.trim();
- let concepto=document.getElementById('inpConcepto').value.trim()||'varios';
- let valorStr=document.getElementById('inpValor').value.trim();
- // Si todo vino en un solo campo, intentar separar
- if(!concepto ||!valorStr){
-   let full=(buffers[0]+" "+buffers[1]+" "+buffers[2]).trim();
-   let m=full.match(/(\d+)$/);
-   if(m){ valorStr=m[1]; full=full.replace(m[0],'').trim(); }
-   let parts=full.split(' ');
-   if(parts.length>=2){ concepto=parts.pop(); nombre=parts.join(' '); }
- }
- let valor=parseInt(valorStr.replace(/[^0-9]/g,''))||0;
- if(nombre && valor>0){
-  agregarNota(nombre,concepto,valor);
-  document.getElementById('log').textContent=`✅ Registrado: ${nombre} - ${concepto} - ${valor}`;
-  resetBuffers();
- } else {
-  document.getElementById('log').textContent='⚠️ No se detectó bien. Intenta de nuevo: Nombre... pausa... Concepto... pausa... Valor';
- }
-}
-
-function agregarNota(n,c,v){
- notas.push({nombre:n,concepto:c,valor:v,fecha:fechaJ.value});
- localStorage.setItem('notas_cxc',JSON.stringify(notas));
- render();
-}
+let step=0, buffers=["","",""], rec=null, listening=false, finalTranscript="", silenceTimer=null;
+function setStep(n){ step=n; document.querySelectorAll('.step div').forEach((d,i)=>d.className=i==n?'on':''); }
+function agregarNota(n,c,v){ notas.push({nombre:n,concepto:c,valor:v,fecha:fechaJ.value}); save(); }
+function save(){ localStorage.setItem('notas_cxc',JSON.stringify(notas)); render(); }
 
 function render(){
  let lista=document.getElementById('lista'); lista.innerHTML='';
- notas.filter(n=>n.fecha==fechaJ.value).forEach((n,i)=>{
-  let globalIdx=notas.indexOf(n);
-  lista.innerHTML+=`<div class="nota"><div><b>NOTA ${i+1},</b> ${n.nombre.toUpperCase()}, ${n.concepto.toUpperCase()}, ${n.valor}$</div><div onclick="borrar(${globalIdx})" style="cursor:pointer">❌</div></div>`;
+ let delDia=notas.map((n,i)=>({...n,global:i})).filter(n=>n.fecha==fechaJ.value);
+ delDia.forEach((n,i)=>{
+  let sel=n.global===selectedIdx?'selected':'';
+  lista.innerHTML+=`<div class="nota ${sel}" onclick="seleccionar(${n.global})"><div><b>NOTA ${i+1},</b> ${n.nombre.toUpperCase()}, ${n.concepto.toUpperCase()}, ${n.valor}$</div><div>${sel?'👉':''}</div></div>`;
  });
- document.getElementById('count').textContent=notas.filter(n=>n.fecha==fechaJ.value).length;
+ document.getElementById('count').textContent=delDia.length;
+ document.getElementById('actions').style.display=selectedIdx!==null?'flex':'none';
 }
-window.borrar=(idx)=>{ if(confirm('Borrar?')){ notas.splice(idx,1); localStorage.setItem('notas_cxc',JSON.stringify(notas)); render(); } };
+window.seleccionar=(idx)=>{ selectedIdx=selectedIdx===idx?null:idx; render(); document.getElementById('log').textContent=selectedIdx!==null?`Seleccionada NOTA. Puedes borrar o editar.`:`Selección quitada`; };
 
-// Eventos boton microfono
+document.getElementById('btnBorrarSel').onclick=()=>{
+ if(selectedIdx===null) return;
+ if(confirm('¿Borrar NOTA seleccionada?')){ notas.splice(selectedIdx,1); selectedIdx=null; save(); }
+};
+document.getElementById('btnEditarSel').onclick=()=>{
+ if(selectedIdx===null) return;
+ let n=notas[selectedIdx];
+ document.getElementById('editNombre').value=n.nombre;
+ document.getElementById('editConcepto').value=n.concepto;
+ document.getElementById('editValor').value=n.valor;
+ document.getElementById('modal').style.display='flex';
+};
+document.getElementById('btnCancelEdit').onclick=()=>document.getElementById('modal').style.display='none';
+document.getElementById('btnSaveEdit').onclick=()=>{
+ let n=notas[selectedIdx];
+ n.nombre=document.getElementById('editNombre').value.trim();
+ n.concepto=document.getElementById('editConcepto').value.trim();
+ n.valor=parseInt(document.getElementById('editValor').value)||0;
+ document.getElementById('modal').style.display='none';
+ selectedIdx=null; save();
+};
+
+// Voz con pausa 2s
+function startRec(){
+ if(listening) return;
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!SR){ alert('Usa Chrome Android'); return; }
+ rec=new SR(); rec.lang='es-CO'; rec.continuous=true; rec.interimResults=true;
+ buffers=["","",""]; finalTranscript=""; setStep(0); listening=true;
+ document.getElementById('btnMic').classList.add('active');
+ rec.onresult=(e)=>{
+  let interim=""; let cur="";
+  for(let i=e.resultIndex;i<e.results.length;i++){ if(e.results[i].isFinal) finalTranscript+=" "+e.results[i][0].transcript; else interim=e.results[i][0].transcript; }
+  cur=(finalTranscript+" "+interim).trim();
+  clearTimeout(silenceTimer);
+  if(step==0) document.getElementById('inpNombre').value=cur;
+  if(step==1) document.getElementById('inpConcepto').value=cur.replace(buffers[0],'').trim();
+  if(step==2) document.getElementById('inpValor').value=cur.replace(buffers[0],'').replace(buffers[1],'').replace(/[^0-9]/g,'').trim();
+  silenceTimer=setTimeout(()=>{
+    if(step<2 && cur.length>1){ buffers[step]=cur; finalTranscript=""; setStep(step+1); }
+  },2000);
+ };
+ rec.onend=()=>{ if(listening) try{rec.start()}catch{} };
+ rec.start();
+}
+function stopRec(){
+ listening=false; if(rec) try{rec.stop()}catch{}; rec=null; clearTimeout(silenceTimer);
+ document.getElementById('btnMic').classList.remove('active');
+ let nombre=document.getElementById('inpNombre').value.trim();
+ let concepto=document.getElementById('inpConcepto').value.trim()||'varios';
+ let valor=parseInt(document.getElementById('inpValor').value.replace(/[^0-9]/g,''))||0;
+ if(nombre && valor>0){ agregarNota(nombre,concepto,valor); document.getElementById('log').textContent=`✅ NOTA ${notas.filter(n=>n.fecha==fechaJ.value).length}: ${nombre}`; document.getElementById('inpNombre').value=''; document.getElementById('inpConcepto').value=''; document.getElementById('inpValor').value=''; }
+}
 let btnMic=document.getElementById('btnMic');
 btnMic.addEventListener('touchstart',e=>{ e.preventDefault(); startRec(); });
 btnMic.addEventListener('touchend',e=>{ e.preventDefault(); stopRec(); });
 btnMic.addEventListener('mousedown',startRec);
 btnMic.addEventListener('mouseup',stopRec);
-btnMic.addEventListener('mouseleave',()=>{ if(listening) stopRec(); });
 
-document.getElementById('btnOtro').onclick=()=>{ resetBuffers(); document.getElementById('log').textContent='Listo para siguiente audio'; setStep(0); };
-
+document.getElementById('btnOtro').onclick=()=>{ document.getElementById('inpNombre').value=''; document.getElementById('inpConcepto').value=''; document.getElementById('inpValor').value=''; setStep(0); };
 document.getElementById('btnFinalizar').onclick=()=>{
  let delDia=notas.filter(n=>n.fecha==fechaJ.value);
- if(!delDia.length){ alert('No hay notas para esta fecha'); return; }
- // Resumen por persona
- let porPersona={};
- let total=0;
- delDia.forEach(n=>{ let k=n.nombre.toUpperCase(); porPersona[k]=(porPersona[k]||0)+n.valor; total+=n.valor; });
- let txt=`REGISTRO CUENTAS POR COBRAR EMPLEADOS\nNIT: 34.994.561\nFECHA JORNADA: ${fechaJ.value}\nFecha cierre: ${new Date().toLocaleString()}\n------------------------------\n`;
- delDia.forEach((n,i)=>{ txt+=`NOTA ${i+1}, ${n.nombre.toUpperCase()}, ${n.concepto.toUpperCase()}, ${n.valor}$\n`; });
- txt+=`\n------------------------------\nRESUMEN POR PERSONA:\n`;
- Object.entries(porPersona).forEach(([p,v])=>{ txt+=`${p}: $${v.toLocaleString('es-CO')}\n`; });
- txt+=`------------------------------\nTOTAL JORNADA: $${total.toLocaleString('es-CO')}\n`;
- // Descargar
- let blob=new Blob([txt],{type:'text/plain'});
- let url=URL.createObjectURL(blob);
- let a=document.createElement('a'); a.href=url; a.download=`Jornada_${fechaJ.value}.txt`; a.click();
- document.getElementById('resumenBox').innerHTML=`<div class="resumen">${txt.replace(/\n/g,'<br>')}</div>`;
- if(confirm('¿Enviar resumen por WhatsApp?')) window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');
+ if(!delDia.length) return alert('Sin notas');
+ let porPersona={}; let total=0;
+ delDia.forEach(n=>{ porPersona[n.nombre.toUpperCase()]=(porPersona[n.nombre.toUpperCase()]||0)+n.valor; total+=n.valor; });
+ let txt=`REGISTRO CUENTAS POR COBRAR\nNIT 34.994.561\nFECHA: ${fechaJ.value}\n----------------\n`;
+ delDia.forEach((n,i)=>txt+=`NOTA ${i+1}, ${n.nombre.toUpperCase()}, ${n.concepto.toUpperCase()}, ${n.valor}$\n`);
+ txt+=`\nRESUMEN POR PERSONA:\n`; Object.entries(porPersona).forEach(([k,v])=>txt+=`${k}: $${v}\n`); txt+=`TOTAL: $${total}\n`;
+ let blob=new Blob([txt],{type:'text/plain'}); let a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`Jornada_${fechaJ.value}.txt`; a.click();
+ document.getElementById('resumenBox').innerHTML=`<pre style="background:#FFA23A;color:#181A2E;padding:12px;border-radius:8px;white-space:pre-wrap">${txt}</pre>`;
 };
-
 render();
 </script>
 </body>
