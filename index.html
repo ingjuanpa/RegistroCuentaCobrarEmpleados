@@ -2,167 +2,146 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Registro Cuenta Cobrar - V2</title>
+<title>Registro V3 Fix</title>
 <style>
 body{margin:0;background:#0f0f0f;color:#fff;font-family:Arial}
-.top{background:#181A2E;padding:14px;text-align:center;font-weight:900;position:sticky;top:0;z-index:10}
+.top{background:#181A2E;padding:12px;text-align:center;font-weight:900;position:sticky;top:0}
 .top span{color:#FFA23A}
-.card{max-width:700px;margin:12px auto;background:#1E1E1E;padding:16px;border-radius:12px}
-label{font-size:12px;color:#aaa}
-input{width:100%;padding:12px;box-sizing:border-box;border-radius:8px;border:none;background:#2A2A2A;color:#fff;margin-top:4px;font-size:16px}
-button{width:100%;padding:14px;border:none;border-radius:10px;font-weight:900;margin-top:8px;cursor:pointer;font-size:15px}
-.btn-mic{background:#B4332A;color:#fff;padding:22px;font-size:20px}
+.card{max-width:700px;margin:12px auto;background:#1E1E1E;padding:14px;border-radius:12px}
+input{width:100%;padding:11px;box-sizing:border-box;border-radius:8px;border:none;background:#2A2A2A;color:#fff;margin-top:4px}
+button{width:100%;padding:13px;border:none;border-radius:10px;font-weight:900;margin-top:8px}
+.btn-mic{background:#B4332A;color:#fff;padding:20px;font-size:18px}
 .btn-mic.active{background:#00C950}
-.nota{background:#2A2A2A;padding:12px;border-radius:8px;margin-top:8px;border-left:4px solid #555;display:flex;justify-content:space-between;cursor:pointer}
-.nota.selected{border-left-color:#FFA23A;background:#332800;border:2px solid #FFA23A}
-.btn-row{display:flex;gap:8px;display:none}
+.nota{background:#2A2A2A;padding:12px;border-radius:8px;margin-top:8px;border-left:4px solid #555;display:flex;justify-content:space-between}
+.nota.selected{border-color:#FFA23A;background:#332800;border:2px solid #FFA23A}
+.btn-row{display:flex;gap:8px}
 .btn-green{background:#0A7A42;color:#fff}
-.btn-yellow{background:#FFA23A;color:#181A2E}
+.btn-yellow{background:#FFA23A;color:#000}
 .btn-red{background:#B4332A;color:#fff}
 .btn-dark{background:#333;color:#fff}
-.step{display:flex;gap:8px;margin-top:10px}
-.step div{flex:1;padding:10px;border-radius:8px;background:#2A2A2A;text-align:center;font-size:12px;border:2px solid transparent}
-.step div.on{border-color:#FFA23A;color:#FFA23A;font-weight:900}
-#log{font-size:11px;color:#FFA23A;margin-top:6px}
-/* Modal editar */
-#modal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:20}
-#modalBox{background:#1E1E1E;padding:18px;border-radius:12px;width:90%;max-width:400px}
+.step{display:flex;gap:6px;margin-top:8px}
+.step div{flex:1;padding:8px;border-radius:8px;background:#2A2A2A;text-align:center;font-size:11px}
+.step div.on{background:#FFA23A;color:#000;font-weight:900}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:99}
+#modalBox{background:#1E1E1E;padding:16px;border-radius:12px;width:90%;max-width:380px}
 </style>
 </head>
 <body>
-<div class="top">REGISTRO CUENTAS COBRAR V2 - NIT <span>34.994.561</span></div>
-
+<div class="top">REGISTRO V3 FIX - NIT <span>34.994.561</span></div>
 <div class="card">
-<label>1. FECHA DE LA JORNADA</label>
-<input type="date" id="fechaJornada">
-<div class="step"><div id="s1" class="on">1. NOMBRE</div><div id="s2">2. CONCEPTO</div><div id="s3">3. VALOR</div></div>
-<button id="btnMic" class="btn-mic">🎤 MANTENER OPRIMIDO<br><small>NOMBRE (2s) CONCEPTO (2s) VALOR</small></button>
-<div id="log">Toca una nota de abajo para seleccionarla</div>
-<div style="display:flex;gap:6px;margin-top:8px">
-<input id="inpNombre" placeholder="Nombre"><input id="inpConcepto" placeholder="Concepto"><input id="inpValor" type="number" placeholder="Valor">
-</div>
+<input type="date" id="fechaJ">
+<div class="step"><div id="s1" class="on">1.NOMBRE</div><div id="s2">2.CONCEPTO</div><div id="s3">3.VALOR</div></div>
+<button id="btnMic" class="btn-mic">🎤 MANTENER OPRIMIDO - DI: NOMBRE... (2s) CONCEPTO... (2s) VALOR</button>
+<div id="log" style="font-size:12px;color:#FFA23A;margin-top:6px">Suelto = guarda automático</div>
+<div style="display:flex;gap:6px;margin-top:6px"><input id="iN" placeholder="Nombre"><input id="iC" placeholder="Concepto"><input id="iV" type="number" placeholder="Valor"></div>
 <button id="btnOtro" class="btn-dark">➕ REGISTRAR OTRO AUDIO</button>
 </div>
 
 <div class="card">
-<b>📋 Notas del <span id="fechaTxt">-</span> (<span id="count">0</span>) - Toca para seleccionar</b>
+<b>Notas <span id="fechaTxt"></span> (<span id="count">0</span>) - Toca para seleccionar</b>
 <div id="lista"></div>
-
-<div id="actions" class="btn-row" style="margin-top:12px">
-<button id="btnEditarSel" class="btn-yellow">✏️ EDITAR NOTA SELECCIONADA</button>
-<button id="btnBorrarSel" class="btn-red">🗑️ BORRAR NOTA SELECCIONADA</button>
+<div id="actions" class="btn-row" style="display:none;margin-top:10px">
+<button id="btnEdit" class="btn-yellow">✏️ EDITAR SELECCIONADA</button>
+<button id="btnDel" class="btn-red">🗑️ BORRAR SELECCIONADA</button>
+</div>
+<button id="btnFin" class="btn-green">📄 FINALIZAR JORNADA - TXT</button>
+<div id="resumen"></div>
 </div>
 
-<div id="resumenBox"></div>
-<button id="btnFinalizar" class="btn-green">📄 FINALIZAR JORNADA - TXT</button>
-</div>
-
-<div id="modal"><div id="modalBox">
-<b>✏️ EDITAR NOTA</b>
-<label>Nombre</label><input id="editNombre">
-<label>Concepto</label><input id="editConcepto">
-<label>Valor $</label><input id="editValor" type="number">
-<button id="btnSaveEdit" class="btn-green">GUARDAR CAMBIOS</button>
-<button id="btnCancelEdit" class="btn-dark">CANCELAR</button>
-</div></div>
+<div id="modal"><div id="modalBox"><b>Editar</b><input id="eN" placeholder="Nombre"><input id="eC" placeholder="Concepto"><input id="eV" type="number" placeholder="Valor"><button id="saveE" class="btn-green">GUARDAR</button><button id="cancelE" class="btn-dark">CANCELAR</button></div></div>
 
 <script>
 let notas=JSON.parse(localStorage.getItem('notas_cxc')||'[]');
-let selectedIdx=null;
-let fechaJ=document.getElementById('fechaJornada');
-fechaJ.valueAsDate=new Date();
+let sel=null;
+let fechaJ=document.getElementById('fechaJ'); fechaJ.valueAsDate=new Date();
 document.getElementById('fechaTxt').textContent=fechaJ.value;
-fechaJ.onchange=()=>{ document.getElementById('fechaTxt').textContent=fechaJ.value; render(); };
+fechaJ.onchange=()=>{document.getElementById('fechaTxt').textContent=fechaJ.value; render();};
 
-let step=0, buffers=["","",""], rec=null, listening=false, finalTranscript="", silenceTimer=null;
-function setStep(n){ step=n; document.querySelectorAll('.step div').forEach((d,i)=>d.className=i==n?'on':''); }
-function agregarNota(n,c,v){ notas.push({nombre:n,concepto:c,valor:v,fecha:fechaJ.value}); save(); }
+let step=0, buffers=["","",""], rec=null, listening=false, curText="", silenceTimer=null;
+function setStep(n){ step=n; document.querySelectorAll('.step div').forEach((d,i)=>d.className=i==n?'on':''); document.getElementById('log').textContent=['Di NOMBRE','Di CONCEPTO','Di VALOR'][n]; }
 function save(){ localStorage.setItem('notas_cxc',JSON.stringify(notas)); render(); }
 
 function render(){
  let lista=document.getElementById('lista'); lista.innerHTML='';
- let delDia=notas.map((n,i)=>({...n,global:i})).filter(n=>n.fecha==fechaJ.value);
- delDia.forEach((n,i)=>{
-  let sel=n.global===selectedIdx?'selected':'';
-  lista.innerHTML+=`<div class="nota ${sel}" onclick="seleccionar(${n.global})"><div><b>NOTA ${i+1},</b> ${n.nombre.toUpperCase()}, ${n.concepto.toUpperCase()}, ${n.valor}$</div><div>${sel?'👉':''}</div></div>`;
- });
+ let delDia=notas.map((n,i)=>({...n,g:i})).filter(n=>n.fecha==fechaJ.value);
+ delDia.forEach((n,i)=>{ lista.innerHTML+=`<div class="nota ${n.g==sel?'selected':''}" onclick="selNote(${n.g})"><div><b>NOTA ${i+1},</b> ${n.nombre.toUpperCase()}, ${n.concepto.toUpperCase()}, ${n.valor}$</div><div>${n.g==sel?'👉':''}</div></div>`; });
  document.getElementById('count').textContent=delDia.length;
- document.getElementById('actions').style.display=selectedIdx!==null?'flex':'none';
+ document.getElementById('actions').style.display=sel!==null?'flex':'none';
 }
-window.seleccionar=(idx)=>{ selectedIdx=selectedIdx===idx?null:idx; render(); document.getElementById('log').textContent=selectedIdx!==null?`Seleccionada NOTA. Puedes borrar o editar.`:`Selección quitada`; };
+window.selNote=(g)=>{ sel=sel===g?null:g; render(); };
 
-document.getElementById('btnBorrarSel').onclick=()=>{
- if(selectedIdx===null) return;
- if(confirm('¿Borrar NOTA seleccionada?')){ notas.splice(selectedIdx,1); selectedIdx=null; save(); }
-};
-document.getElementById('btnEditarSel').onclick=()=>{
- if(selectedIdx===null) return;
- let n=notas[selectedIdx];
- document.getElementById('editNombre').value=n.nombre;
- document.getElementById('editConcepto').value=n.concepto;
- document.getElementById('editValor').value=n.valor;
- document.getElementById('modal').style.display='flex';
-};
-document.getElementById('btnCancelEdit').onclick=()=>document.getElementById('modal').style.display='none';
-document.getElementById('btnSaveEdit').onclick=()=>{
- let n=notas[selectedIdx];
- n.nombre=document.getElementById('editNombre').value.trim();
- n.concepto=document.getElementById('editConcepto').value.trim();
- n.valor=parseInt(document.getElementById('editValor').value)||0;
- document.getElementById('modal').style.display='none';
- selectedIdx=null; save();
-};
+document.getElementById('btnDel').onclick=()=>{ if(sel!==null && confirm('¿Borrar?')){ notas.splice(sel,1); sel=null; save(); } };
+document.getElementById('btnEdit').onclick=()=>{ if(sel===null) return; let n=notas[sel]; document.getElementById('eN').value=n.nombre; document.getElementById('eC').value=n.concepto; document.getElementById('eV').value=n.valor; document.getElementById('modal').style.display='flex'; };
+document.getElementById('cancelE').onclick=()=>document.getElementById('modal').style.display='none';
+document.getElementById('saveE').onclick=()=>{ notas[sel].nombre=document.getElementById('eN').value.trim(); notas[sel].concepto=document.getElementById('eC').value.trim(); notas[sel].valor=parseInt(document.getElementById('eV').value)||0; document.getElementById('modal').style.display='none'; sel=null; save(); };
 
-// Voz con pausa 2s
 function startRec(){
  if(listening) return;
  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
- if(!SR){ alert('Usa Chrome Android'); return; }
- rec=new SR(); rec.lang='es-CO'; rec.continuous=true; rec.interimResults=true;
- buffers=["","",""]; finalTranscript=""; setStep(0); listening=true;
+ if(!SR) return alert('Usa Chrome');
+ rec=new SR(); rec.lang='es-CO'; rec.continuous=false; rec.interimResults=true;
+ buffers=["","",""]; curText=""; step=0; listening=true; setStep(0);
  document.getElementById('btnMic').classList.add('active');
+ document.getElementById('btnMic').textContent='🔴 ESCUCHANDO... HABLA NOMBRE';
  rec.onresult=(e)=>{
-  let interim=""; let cur="";
-  for(let i=e.resultIndex;i<e.results.length;i++){ if(e.results[i].isFinal) finalTranscript+=" "+e.results[i][0].transcript; else interim=e.results[i][0].transcript; }
-  cur=(finalTranscript+" "+interim).trim();
+  let t=e.results[0][0].transcript;
+  curText=t;
+  if(step==0) document.getElementById('iN').value=curText;
+  if(step==1) document.getElementById('iC').value=curText;
+  if(step==2) document.getElementById('iV').value=curText.replace(/[^0-9]/g,'');
   clearTimeout(silenceTimer);
-  if(step==0) document.getElementById('inpNombre').value=cur;
-  if(step==1) document.getElementById('inpConcepto').value=cur.replace(buffers[0],'').trim();
-  if(step==2) document.getElementById('inpValor').value=cur.replace(buffers[0],'').replace(buffers[1],'').replace(/[^0-9]/g,'').trim();
   silenceTimer=setTimeout(()=>{
-    if(step<2 && cur.length>1){ buffers[step]=cur; finalTranscript=""; setStep(step+1); }
+   if(curText.trim() && step<3){
+    buffers[step]=curText.trim();
+    if(step==0) document.getElementById('iN').value=buffers[0];
+    if(step==1) document.getElementById('iC').value=buffers[1];
+    if(step==2) document.getElementById('iV').value=buffers[2].replace(/[^0-9]/g,'');
+    curText=""; step++;
+    if(step<3){ setStep(step); document.getElementById('btnMic').textContent='🔴 SIGUE... AHORA '+['NOMBRE','CONCEPTO','VALOR'][step]; try{ rec.start(); }catch{} }
+    else { stopRec(); }
+   }
   },2000);
  };
- rec.onend=()=>{ if(listening) try{rec.start()}catch{} };
+ rec.onend=()=>{ if(listening && step<3){ try{ rec.start(); }catch{} } };
  rec.start();
 }
 function stopRec(){
  listening=false; if(rec) try{rec.stop()}catch{}; rec=null; clearTimeout(silenceTimer);
  document.getElementById('btnMic').classList.remove('active');
- let nombre=document.getElementById('inpNombre').value.trim();
- let concepto=document.getElementById('inpConcepto').value.trim()||'varios';
- let valor=parseInt(document.getElementById('inpValor').value.replace(/[^0-9]/g,''))||0;
- if(nombre && valor>0){ agregarNota(nombre,concepto,valor); document.getElementById('log').textContent=`✅ NOTA ${notas.filter(n=>n.fecha==fechaJ.value).length}: ${nombre}`; document.getElementById('inpNombre').value=''; document.getElementById('inpConcepto').value=''; document.getElementById('inpValor').value=''; }
+ document.getElementById('btnMic').textContent='🎤 MANTENER OPRIMIDO - DI: NOMBRE... (2s) CONCEPTO... (2s) VALOR';
+ let nombre=(buffers[0]||document.getElementById('iN').value).trim();
+ let concepto=(buffers[1]||document.getElementById('iC').value).trim()||'varios';
+ let valorRaw=(buffers[2]||document.getElementById('iV').value).toString();
+ let valor=parseInt(valorRaw.replace(/[^0-9]/g,''))||0;
+ if(nombre && valor>0){
+  notas.push({nombre,concepto,valor,fecha:fechaJ.value});
+  save();
+  document.getElementById('iN').value=''; document.getElementById('iC').value=''; document.getElementById('iV').value='';
+  buffers=["","",""]; setStep(0);
+  document.getElementById('log').textContent=`✅ NOTA ${notas.filter(n=>n.fecha==fechaJ.value).length}: ${nombre} - ${valor}`;
+ } else if(nombre || concepto || valorRaw){
+  document.getElementById('log').textContent='⚠️ Falta valor numérico, corrige manual y dale a REGISTRAR OTRO';
+ }
 }
-let btnMic=document.getElementById('btnMic');
-btnMic.addEventListener('touchstart',e=>{ e.preventDefault(); startRec(); });
-btnMic.addEventListener('touchend',e=>{ e.preventDefault(); stopRec(); });
-btnMic.addEventListener('mousedown',startRec);
-btnMic.addEventListener('mouseup',stopRec);
-
-document.getElementById('btnOtro').onclick=()=>{ document.getElementById('inpNombre').value=''; document.getElementById('inpConcepto').value=''; document.getElementById('inpValor').value=''; setStep(0); };
-document.getElementById('btnFinalizar').onclick=()=>{
- let delDia=notas.filter(n=>n.fecha==fechaJ.value);
- if(!delDia.length) return alert('Sin notas');
- let porPersona={}; let total=0;
- delDia.forEach(n=>{ porPersona[n.nombre.toUpperCase()]=(porPersona[n.nombre.toUpperCase()]||0)+n.valor; total+=n.valor; });
- let txt=`REGISTRO CUENTAS POR COBRAR\nNIT 34.994.561\nFECHA: ${fechaJ.value}\n----------------\n`;
- delDia.forEach((n,i)=>txt+=`NOTA ${i+1}, ${n.nombre.toUpperCase()}, ${n.concepto.toUpperCase()}, ${n.valor}$\n`);
- txt+=`\nRESUMEN POR PERSONA:\n`; Object.entries(porPersona).forEach(([k,v])=>txt+=`${k}: $${v}\n`); txt+=`TOTAL: $${total}\n`;
- let blob=new Blob([txt],{type:'text/plain'}); let a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`Jornada_${fechaJ.value}.txt`; a.click();
- document.getElementById('resumenBox').innerHTML=`<pre style="background:#FFA23A;color:#181A2E;padding:12px;border-radius:8px;white-space:pre-wrap">${txt}</pre>`;
+let b=document.getElementById('btnMic');
+b.addEventListener('touchstart',e=>{e.preventDefault(); startRec();});
+b.addEventListener('touchend',e=>{e.preventDefault(); if(step<2) stopRec(); });
+b.addEventListener('mousedown',startRec);
+b.addEventListener('mouseup',()=>{ if(step<2) stopRec(); });
+document.getElementById('btnOtro').onclick=()=>{
+ let n=document.getElementById('iN').value.trim(), c=document.getElementById('iC').value.trim()||'varios', v=parseInt(document.getElementById('iV').value)||0;
+ if(n&&v>0){ notas.push({nombre:n,concepto:c,valor:v,fecha:fechaJ.value}); save(); document.getElementById('iN').value=''; document.getElementById('iC').value=''; document.getElementById('iV').value=''; }
 };
-render();
+document.getElementById('btnFin').onclick=()=>{
+ let delDia=notas.filter(n=>n.fecha==fechaJ.value); if(!delDia.length) return alert('Sin notas');
+ let por={}; let tot=0; delDia.forEach(n=>{ por[n.nombre.toUpperCase()]=(por[n.nombre.toUpperCase()]||0)+n.valor; tot+=n.valor; });
+ let txt=`REGISTRO CUENTAS COBRAR - NIT 34.994.561\nFECHA: ${fechaJ.value}\n----------------\n`;
+ delDia.forEach((n,i)=>txt+=`NOTA ${i+1}, ${n.nombre.toUpperCase()}, ${n.concepto.toUpperCase()}, ${n.valor}$\n`);
+ txt+=`\nRESUMEN POR PERSONA:\n`; Object.entries(por).forEach(([k,v])=>txt+=`${k}: $${v}\n`); txt+=`TOTAL: $${tot}\n`;
+ let blob=new Blob([txt],{type:'text/plain'}); let a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`Jornada_${fechaJ.value}.txt`; a.click();
+ document.getElementById('resumen').innerHTML=`<pre style="background:#FFA23A;color:#000;padding:10px;border-radius:8px;white-space:pre-wrap">${txt}</pre>`;
+};
+render(); setStep(0);
 </script>
 </body>
 </html>
